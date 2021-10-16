@@ -1,9 +1,9 @@
-﻿// NagĹĂłwki
+﻿// Nagłówki
 //#include "stdafx.h"
 #include <GL/glew.h>
 #include <SFML/Window.hpp>
 
-// Kody shaderĂłw
+// Kody shaderów
 const GLchar* vertexSource = R"glsl(
 #version 150 core
 in vec2 position;
@@ -43,7 +43,7 @@ int main()
 	glBindVertexArray(vao);
 
 	// Utworzenie VBO (Vertex Buffer Object)
-	// i skopiowanie do niego danych wierzchoĹkowych
+	// i skopiowanie do niego danych wierzchołkowych
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 
@@ -55,19 +55,19 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// Utworzenie i skompilowanie shadera wierzchoĹkĂłw
+	// Utworzenie i skompilowanie shadera wierzchołków
 	GLuint vertexShader =
 		glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
 	glCompileShader(vertexShader);
 
-	// Utworzenie i skompilowanie shadera fragmentĂłw
+	// Utworzenie i skompilowanie shadera fragmentów
 	GLuint fragmentShader =
 		glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
 	glCompileShader(fragmentShader);
 
-	// Zlinkowanie obu shaderĂłw w jeden wspĂłlny program
+	// Zlinkowanie obu shaderów w jeden wspólny program
 	GLuint shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
@@ -75,7 +75,7 @@ int main()
 	glLinkProgram(shaderProgram);
 	glUseProgram(shaderProgram);
 
-	// Specifikacja formatu danych wierzchoĹkowych
+	// Specifikacja formatu danych wierzchołkowych
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
 	glEnableVertexAttribArray(posAttrib);
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
@@ -83,7 +83,7 @@ int main()
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
-	// RozpoczÄcie pÄtli zdarzeĹ
+	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
 	while (running) {
 		sf::Event windowEvent;
@@ -98,19 +98,19 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Narysowanie trĂłjkÄ
-		//ta na podstawie 3 wierzchoĹkĂłw
+		// Narysowanie trójkę
+		//ta na podstawie 3 wierzchołków
 			glDrawArrays(GL_TRIANGLES, 0, 3);
-		// Wymiana buforĂłw tylni/przedni
+		// Wymiana buforów tylni/przedni
 		window.display();
 	}
-	// Kasowanie programu i czyszczenie buforĂłw
+	// Kasowanie programu i czyszczenie buforów
 	glDeleteProgram(shaderProgram);
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
-	// ZamkniÄcie okna renderingu
+	// Zamknięcie okna renderingu
 	window.close();
 	return 0;
 }
