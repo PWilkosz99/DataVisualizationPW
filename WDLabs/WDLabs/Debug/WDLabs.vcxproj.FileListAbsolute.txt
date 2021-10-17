@@ -1,1 +1,2 @@
 E:\repo\OpenGL\WDLabs\WDLabs\Debug\WDLabs.exe
+E:\repo\DataVisualizationPW\WDLabs\WDLabs\Debug\WDLabs.exe
