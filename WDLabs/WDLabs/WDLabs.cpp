@@ -6,12 +6,12 @@
 // Kody shaderów
 const GLchar* vertexSource = R"glsl(
 #version 150 core
-in vec2 position;
+in vec3 position;
 in vec3 color;
 out vec3 Color;
 void main(){
 Color = color;
-gl_Position = vec4(position, 0.0, 1.0);
+gl_Position = vec4(position, 1.0);
 }
 )glsl";
 
@@ -48,10 +48,15 @@ int main()
 	glGenBuffers(1, &vbo);
 
 	GLfloat vertices[] = {
-	-0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-	-0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-	0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-	0.5f, -0.5f, 1.0f, 1.0f, 1.0f
+	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+	0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+	0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f,
+
+	-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f,
+	-0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f,
+	0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f,
+	0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f
 	};
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -79,10 +84,10 @@ int main()
 	// Specifikacja formatu danych wierzchołkowych
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
 	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
