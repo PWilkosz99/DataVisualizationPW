@@ -2,6 +2,7 @@
 //#include "stdafx.h"
 #include <GL/glew.h>
 #include <SFML/Window.hpp>
+#include <iostream>
 
 // Kody shaderów
 const GLchar* vertexSource = R"glsl(
@@ -24,6 +25,30 @@ void main()
 outColor = vec4(Color, 1.0);
 }
 )glsl";
+
+void ErrorCheck(GLuint& shader, std::string ShaderName = "Unknown shader")
+{
+	GLint isCompiled = 0;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+	std::cout << ShaderName << " compile result: ";
+	std::cout << (isCompiled == 0 ? "Fail" : "Ok") << "\n";
+
+	if (isCompiled == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> log(maxLength);
+		glGetShaderInfoLog(shader, maxLength, &maxLength, &log[0]);
+
+		for (auto i : log)
+		{
+			std::cout << i;
+		}
+		std::cout << "\n";
+	}
+}
+
+
 int main()
 {
 	sf::ContextSettings settings;
@@ -67,11 +92,15 @@ int main()
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
 	glCompileShader(vertexShader);
 
+	ErrorCheck(vertexShader, "Vertex Shader");
+
 	// Utworzenie i skompilowanie shadera fragmentów
 	GLuint fragmentShader =
 		glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
 	glCompileShader(fragmentShader);
+
+	ErrorCheck(fragmentShader, "Fragment Shader");
 
 	// Zlinkowanie obu shaderów w jeden wspólny program
 	GLuint shaderProgram = glCreateProgram();
