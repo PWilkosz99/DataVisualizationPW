@@ -107,15 +107,44 @@ int main()
 		case sf::Keyboard::Escape: //Jezeli ESC to zamyka okno
 			window.close();
 			break;
+		case sf::Keyboard::Num1:
+			primitive = GL_POINTS;
+			break;
+		case sf::Keyboard::Num2:
+			primitive = GL_LINES;
+			break;
+		case sf::Keyboard::Num3:
+			primitive = GL_LINE_STRIP;
+			break;
+		case sf::Keyboard::Num4:
+			primitive = GL_LINE_LOOP;
+			break;
+		case sf::Keyboard::Num5:
+			primitive = GL_TRIANGLES;
+			break;
+		case sf::Keyboard::Num6:
+			primitive = GL_TRIANGLE_STRIP;
+			break;
+		case sf::Keyboard::Num7:
+			primitive = GL_TRIANGLE_FAN;
+			break;
+		case sf::Keyboard::Num8:
+			primitive = GL_QUADS;
+			break;
+		case sf::Keyboard::Num9:
+			primitive = GL_QUAD_STRIP;
+			break;
+		case sf::Keyboard::Num0:
+			primitive = GL_POLYGON;
+			break;
 		}
 
 		// Nadanie scenie koloru czarnego
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Narysowanie trójkę
-		//ta na podstawie 3 wierzchołków
-		glDrawArrays(GL_POLYGON, 0, 4);
+		// Narysowanie figury
+		glDrawArrays(primitive, 0, 4);
 		// Wymiana buforów tylni/przedni
 		window.display();
 	}
