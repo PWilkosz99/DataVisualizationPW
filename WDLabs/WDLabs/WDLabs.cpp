@@ -72,7 +72,7 @@ int main()
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 
-	GLfloat vertices[] = {
+	GLfloat* vertices = new GLfloat[]{
 	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
 	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
 	0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
@@ -84,7 +84,8 @@ int main()
 	0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f
 	};
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 8 * 6, vertices, GL_STATIC_DRAW);
+
 
 	// Utworzenie i skompilowanie shadera wierzchołków
 	GLuint vertexShader =
@@ -119,6 +120,7 @@ int main()
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	auto primitive = GL_POLYGON;
+	int vertcount = 8;
 
 	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
@@ -129,51 +131,54 @@ int main()
 			case sf::Event::Closed:
 				running = false;
 				break;
+
+			case sf::Event::KeyPressed:
+				switch (windowEvent.key.code) {
+				case sf::Keyboard::Escape: //Jezeli ESC to zamyka okno
+					window.close();
+					break;
+				case sf::Keyboard::Num1:
+					primitive = GL_POINTS;
+					break;
+				case sf::Keyboard::Num2:
+					primitive = GL_LINES;
+					break;
+				case sf::Keyboard::Num3:
+					primitive = GL_LINE_STRIP;
+					break;
+				case sf::Keyboard::Num4:
+					primitive = GL_LINE_LOOP;
+					break;
+				case sf::Keyboard::Num5:
+					primitive = GL_TRIANGLES;
+					break;
+				case sf::Keyboard::Num6:
+					primitive = GL_TRIANGLE_STRIP;
+					break;
+				case sf::Keyboard::Num7:
+					primitive = GL_TRIANGLE_FAN;
+					break;
+				case sf::Keyboard::Num8:
+					primitive = GL_QUADS;
+					break;
+				case sf::Keyboard::Num9:
+					primitive = GL_QUAD_STRIP;
+					break;
+				case sf::Keyboard::Num0:
+					primitive = GL_POLYGON;
+					break;
+				}
+			case sf::Event::MouseMoved:
+				vertcount = windowEvent.mouseMove.y % 600 / 80;
+				break;
 			}
 		}
-		sf::Event::KeyPressed;
-		switch (windowEvent.key.code) {
-		case sf::Keyboard::Escape: //Jezeli ESC to zamyka okno
-			window.close();
-			break;
-		case sf::Keyboard::Num1:
-			primitive = GL_POINTS;
-			break;
-		case sf::Keyboard::Num2:
-			primitive = GL_LINES;
-			break;
-		case sf::Keyboard::Num3:
-			primitive = GL_LINE_STRIP;
-			break;
-		case sf::Keyboard::Num4:
-			primitive = GL_LINE_LOOP;
-			break;
-		case sf::Keyboard::Num5:
-			primitive = GL_TRIANGLES;
-			break;
-		case sf::Keyboard::Num6:
-			primitive = GL_TRIANGLE_STRIP;
-			break;
-		case sf::Keyboard::Num7:
-			primitive = GL_TRIANGLE_FAN;
-			break;
-		case sf::Keyboard::Num8:
-			primitive = GL_QUADS;
-			break;
-		case sf::Keyboard::Num9:
-			primitive = GL_QUAD_STRIP;
-			break;
-		case sf::Keyboard::Num0:
-			primitive = GL_POLYGON;
-			break;
-		}
-
 		// Nadanie scenie koloru czarnego
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Narysowanie figury
-		glDrawArrays(primitive, 0, 4);
+		glDrawArrays(primitive, 0, vertcount);
 		// Wymiana buforów tylni/przedni
 		window.display();
 	}
