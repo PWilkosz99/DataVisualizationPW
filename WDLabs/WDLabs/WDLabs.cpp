@@ -3,16 +3,29 @@
 #include <GL/glew.h>
 #include <SFML/Window.hpp>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#define M_PI 3.14159265358979323846
+
+#define WND_H 600
+#define WND_W 800
+#define VerticesLen 100
+
 
 // Kody shaderów
 const GLchar* vertexSource = R"glsl(
 #version 150 core
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj; 
 in vec3 position;
 in vec3 color;
 out vec3 Color;
 void main(){
 Color = color;
-gl_Position = vec4(position, 1.0);
+gl_Position = proj * view * model * vec4(position, 1.0);
 }
 )glsl";
 
@@ -72,19 +85,50 @@ int main()
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 
-	GLfloat* vertices = new GLfloat[]{
-	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-	0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-	0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f,
-
-	-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f,
-	-0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f,
-	0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f,
-	0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f
+	GLfloat vertices[] = {
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
 	};
+
+
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 8 * 6, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
 
 
 	// Utworzenie i skompilowanie shadera wierzchołków
@@ -119,8 +163,37 @@ int main()
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-	auto primitive = GL_POLYGON;
-	int vertcount = 8;
+	auto primitive = GL_TRIANGLES;
+	//int vertcount = 8;
+
+	// Model
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	GLint uniTrans = glGetUniformLocation(shaderProgram, "model");
+	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(model));
+
+	// Widok
+	glm::mat4 view;
+
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+	GLint uniView = glGetUniformLocation(shaderProgram, "view");
+	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+
+	// Projekcja
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 800.0f, 0.06f, 100.0f);
+	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
+	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+	float cameraSpeed = 1.0f / 100;
+
+	float obrot = 1.0f;
+
+
 
 	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
@@ -167,9 +240,51 @@ int main()
 				case sf::Keyboard::Num0:
 					primitive = GL_POLYGON;
 					break;
+				case sf::Keyboard::Left:
+					cameraPos.x += cameraSpeed;
+					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+					uniView = glGetUniformLocation(shaderProgram, "view");
+					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
+
+				case sf::Keyboard::Right:
+					cameraPos.x -= cameraSpeed;
+					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+					uniView = glGetUniformLocation(shaderProgram, "view");
+					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
+				case sf::Keyboard::Up:
+					cameraPos.y -= cameraSpeed;
+					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+					uniView = glGetUniformLocation(shaderProgram, "view");
+					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
+				case sf::Keyboard::Down:
+					cameraPos.y += cameraSpeed;
+					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+					uniView = glGetUniformLocation(shaderProgram, "view");
+					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
 				}
 			case sf::Event::MouseMoved:
-				vertcount = windowEvent.mouseMove.y % 600 / 80;
+				//vertcount = windowEvent.mouseMove.y % 600 / 80;
+				obrot = ceil(windowEvent.mouseMove.x - WND_W / 2.0f) / 200.0f;
+
+				//obrot = cameraSpeed;
+
+
+				cameraFront.x = sinf(obrot);
+				cameraFront.z = -cosf(obrot);
+
+				view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+				GLint uniView = glGetUniformLocation(shaderProgram, "view");
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+
 				break;
 			}
 		}
@@ -178,7 +293,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Narysowanie figury
-		glDrawArrays(primitive, 0, vertcount);
+		glDrawArrays(primitive, 0, 36);
 		// Wymiana buforów tylni/przedni
 		window.display();
 	}
