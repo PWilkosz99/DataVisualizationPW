@@ -241,7 +241,7 @@ int main()
 					primitive = GL_POLYGON;
 					break;
 				case sf::Keyboard::Left:
-					cameraPos.x += cameraSpeed;
+					cameraPos -= cameraSpeed * cameraFront;
 					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 					uniView = glGetUniformLocation(shaderProgram, "view");
@@ -269,23 +269,21 @@ int main()
 					uniView = glGetUniformLocation(shaderProgram, "view");
 					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 					break;
+				case sf::Keyboard::Add:
+					cameraPos += cameraSpeed * cameraFront;
+					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+					uniView = glGetUniformLocation(shaderProgram, "view");
+					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
+				case sf::Keyboard::Subtract:
+					cameraPos -= cameraSpeed * cameraFront;
+					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+					uniView = glGetUniformLocation(shaderProgram, "view");
+					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
 				}
-			case sf::Event::MouseMoved:
-				//vertcount = windowEvent.mouseMove.y % 600 / 80;
-				obrot = ceil(windowEvent.mouseMove.x - WND_W / 2.0f) / 200.0f;
-
-				//obrot = cameraSpeed;
-
-
-				cameraFront.x = sinf(obrot);
-				cameraFront.z = -cosf(obrot);
-
-				view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
-				GLint uniView = glGetUniformLocation(shaderProgram, "view");
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-
-				break;
 			}
 		}
 		// Nadanie scenie koloru czarnego
