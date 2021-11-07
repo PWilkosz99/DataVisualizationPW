@@ -191,7 +191,7 @@ int main()
 
 	float cameraSpeed = 1.0f / 100;
 
-	float obrot = 1.0f;
+	float rotation = cameraSpeed;
 
 
 
@@ -241,7 +241,7 @@ int main()
 					primitive = GL_POLYGON;
 					break;
 				case sf::Keyboard::Left:
-					cameraPos -= cameraSpeed * cameraFront;
+					cameraPos.x += cameraSpeed;
 					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 					uniView = glGetUniformLocation(shaderProgram, "view");
@@ -278,6 +278,26 @@ int main()
 					break;
 				case sf::Keyboard::Subtract:
 					cameraPos -= cameraSpeed * cameraFront;
+					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+					uniView = glGetUniformLocation(shaderProgram, "view");
+					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
+				case sf::Keyboard::Divide:
+					rotation -= cameraSpeed;
+					//cameraFront.x = sin(rotation );
+					cameraFront.y = sin(rotation);
+
+					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+					uniView = glGetUniformLocation(shaderProgram, "view");
+					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
+				case sf::Keyboard::Multiply:
+					rotation  += cameraSpeed;
+					//cameraFront.x = sin(rotation );
+					cameraFront.y = sin(rotation);
+
 					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 					uniView = glGetUniformLocation(shaderProgram, "view");
