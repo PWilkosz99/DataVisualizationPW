@@ -239,8 +239,6 @@ int main()
 	sf::Clock clock;
 	sf::Time time;
 
-	window.setFramerateLimit(144);
-
 	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
 	while (running) {
@@ -248,12 +246,14 @@ int main()
 		time = clock.getElapsedTime();
 		clock.restart();
 		float cameraSpeed = 0.000002f * time.asMicroseconds();
+
+		float fps = 1000000 / time.asMicroseconds();
+		window.setTitle(std::to_string(fps));
 		while (window.pollEvent(windowEvent)) {
 			switch (windowEvent.type) {
 			case sf::Event::Closed:
 				running = false;
 				break;
-
 			case sf::Event::KeyPressed:
 				switch (windowEvent.key.code) {
 				case sf::Keyboard::Escape: //Jezeli ESC to zamyka okno
