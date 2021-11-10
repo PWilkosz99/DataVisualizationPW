@@ -144,6 +144,9 @@
   <ItemGroup>
     <ClCompile Include="WDLabs.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WDLabs.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <SFML/System/Time.hpp>
 
 #define M_PI 3.14159265358979323846
 
@@ -59,6 +60,55 @@ void ErrorCheck(GLuint& shader, std::string ShaderName = "Unknown shader")
 		}
 		std::cout << "\n";
 	}
+}
+
+// Widok
+glm::mat4 view;
+
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float sensitivity = 0.75f;
+
+float lastX = 0;
+float lastY = 0;
+
+float cameraSpeed = 1.0f / 100;
+
+float rotation = cameraSpeed;
+
+void ustawKamereMysz(GLint uniView, sf::Int64 time, sf::Window& _window) 
+{
+	double yaw = -90; //obrót względem osi Y
+	double pitch = 0; //obrót względem osi X
+
+	sf::Vector2i localPosition = sf::Mouse::getPosition(_window);
+	double xoffset = localPosition.x - lastX;
+	double yoffset = localPosition.y - lastY;
+	lastX = localPosition.x;
+	lastY = localPosition.y;
+
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+	yaw += xoffset;
+	pitch -= yoffset;
+
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(front);
+
+	glm::mat4 view;
+	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+
+	cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 
 
@@ -173,12 +223,6 @@ int main()
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(model));
 
 	// Widok
-	glm::mat4 view;
-
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
 	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 	GLint uniView = glGetUniformLocation(shaderProgram, "view");
@@ -189,17 +233,21 @@ int main()
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-	float cameraSpeed = 1.0f / 100;
-
-	float rotation = cameraSpeed;
-
 	window.setMouseCursorGrabbed(true); //przechwycenie kursora myszy w oknie ------------
 	window.setMouseCursorVisible(false); //ukrycie kursora myszy ---------------------
+
+	sf::Clock clock;
+	sf::Time time;
+
+	window.setFramerateLimit(144);
 
 	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
 	while (running) {
 		sf::Event windowEvent;
+		time = clock.getElapsedTime();
+		clock.restart();
+		float cameraSpeed = 0.000002f * time.asMicroseconds();
 		while (window.pollEvent(windowEvent)) {
 			switch (windowEvent.type) {
 			case sf::Event::Closed:
@@ -301,6 +349,9 @@ int main()
 
 					uniView = glGetUniformLocation(shaderProgram, "view");
 					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					break;
+				case sf::Event::MouseMoved:
+					ustawKamereMysz(uniView, time.asMicroseconds(), window);
 					break;
 				}
 			}
