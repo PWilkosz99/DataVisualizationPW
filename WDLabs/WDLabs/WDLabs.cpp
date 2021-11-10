@@ -193,7 +193,8 @@ int main()
 
 	float rotation = cameraSpeed;
 
-
+	window.setMouseCursorGrabbed(true); //przechwycenie kursora myszy w oknie ------------
+	window.setMouseCursorVisible(false); //ukrycie kursora myszy ---------------------
 
 	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
@@ -285,8 +286,7 @@ int main()
 					break;
 				case sf::Keyboard::Divide:
 					rotation -= cameraSpeed;
-					//cameraFront.x = sin(rotation );
-					cameraFront.y = sin(rotation);
+					cameraUp -= cameraSpeed;
 
 					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
@@ -295,8 +295,7 @@ int main()
 					break;
 				case sf::Keyboard::Multiply:
 					rotation  += cameraSpeed;
-					//cameraFront.x = sin(rotation );
-					cameraFront.y = sin(rotation);
+					cameraUp += cameraSpeed;
 
 					view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
