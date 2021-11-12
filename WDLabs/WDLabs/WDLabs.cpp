@@ -111,11 +111,11 @@ void setCam(GLint _uniView) {
 }
 
 void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
-	//aktualna pozycja kursora
+	// Aktualna pozycja kursora
 	sf::Vector2i localPos = sf::Mouse::getPosition(_window);
 	sf::Vector2i pos;
 	bool rel = false;
-	//poziom
+	// Poziom
 	if (localPos.x <= 0) {
 		pos.x = _window.getSize().x;
 		pos.y = localPos.y;
@@ -126,7 +126,7 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 		pos.y = localPos.y;
 		rel = true;
 	}
-	//pion
+	// Pion
 	if (localPos.y <= 0) {
 		pos.x = localPos.x;
 		pos.y = _window.getSize().y - 1;
@@ -143,26 +143,26 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 		firstMouse = true;
 	}
 	localPos = sf::Mouse::getPosition(_window);
-	//próba uniknięcia błędu związanego z zbyt dużym przeskokiem pozycji kursora
+	// Próba uniknięcia błędu związanego z zbyt dużym przeskokiem pozycji kursora
 	if (firstMouse) {
 		lastX = localPos.x;
 		lastY = localPos.y;
 		firstMouse = false;
 	}
-	//zmiana położenia i zapamiętanie ostatniej pozycji
+	// Zmiana położenia i zapamiętanie ostatniej pozycji
 	double xoff = localPos.x - lastX;
 	double yoff = localPos.y - lastY;
 	lastX = localPos.x;
 	lastY = localPos.y;
 
-	double sense = 0.001f;
+	double sensitivity = 0.001f;
 	double speed = 0.005f * 1;
 
 	//aktualizacja kątów ustawienia kamery
-	xoff *= sense;
-	yoff *= sense;
-	yaw += xoff * speed;
-	pitch -= yoff * speed;
+	xoff *= sensitivity;
+	yoff *= sensitivity;
+	yaw += xoff;
+	pitch -= yoff;
 
 	if (pitch > 89.0f) {
 		pitch = 89.0f;
@@ -175,11 +175,13 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front.y = sin(glm::radians(pitch));
 	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	std::cout << front.x <<"\t"<<front.y<<"\t"<<front.z<<"\n";
 	cameraFront = glm::normalize(front);
+	std::cout << cameraFront[0] << "\n";;
 
 	glm::mat4 view;
 	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraZoom);
-	glUniformMatrix4fv(_uniView, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(_uniView, 0, GL_FALSE, glm::value_ptr(view));
 }
 
 
@@ -320,7 +322,6 @@ int main()
 		sf::Event windowEvent;
 		time = clock.getElapsedTime();
 		clock.restart();
-		float cameracameraSpeed = 0.000002f * time.asMicroseconds();
 
 		int ms = time.asMicroseconds();
 		float fps = 0;
