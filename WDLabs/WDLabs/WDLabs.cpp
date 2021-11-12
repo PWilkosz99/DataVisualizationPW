@@ -78,23 +78,29 @@ void ErrorCheck(GLuint& shader, std::string ShaderName = "Unknown shader")
 void setCam(GLint _uniView) {
 	float cameraSpeed = 0.0009f; //predkosc kamery
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 		cameraPos.y -= cameraSpeed;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 		cameraPos.y += cameraSpeed;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
 		cameraPos.x += cameraSpeed;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
 		cameraPos.x -= cameraSpeed;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Add)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
 		cameraPos += cameraSpeed * cameraFront;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Subtract)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
 		cameraPos -= cameraSpeed * cameraFront;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraZoom)) * cameraSpeed;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraZoom)) * cameraSpeed;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Divide)) {
 		rotation -= cameraSpeed;

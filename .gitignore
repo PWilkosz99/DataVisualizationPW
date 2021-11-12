@@ -18,8 +18,8 @@ mono_crash.*
 
 
 # # Build results
-# [Dd]ebug/
-# [Dd]ebugPublic/
+[Dd]ebug/
+[Dd]ebugPublic/
 # [Rr]elease/
 # [Rr]eleases/
 # x64/
@@ -363,6 +363,8 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
+WDLabs/WDLabs/Debug/
+WDLabs/WDLabs/x64/
 *.tlog
 *read.1.tlog
 *.exe
