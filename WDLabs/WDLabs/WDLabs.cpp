@@ -7,7 +7,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <SFML/System/Time.hpp>
+#include "stb_image.h"
 
+#define STB_IMAGE_IMPLEMENTATION
 #define M_PI 3.14159265358979323846
 
 #define WND_H 600
@@ -316,7 +318,7 @@ int main()
 	window.setMouseCursorVisible(false);
 
 	//FPS limit
-	window.setFramerateLimit(60);
+	window.setFramerateLimit(144);
 	sf::Clock clock;
 	sf::Time time;
 
