@@ -75,8 +75,8 @@ void ErrorCheck(GLuint& shader, std::string ShaderName = "Unknown shader")
 	}
 }
 
-void setCam(GLint _uniView) {
-	float cameraSpeed = 0.0009f; //predkosc kamery
+void setCam(GLint _uniView, float _time) {
+	float cameraSpeed = 0.000002f * _time; //predkosc kamery
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 		cameraPos.y -= cameraSpeed;
@@ -162,7 +162,7 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 	lastY = localPos.y;
 
 	double sensitivity = 0.001f;
-	double speed = 0.005f * 1;
+	double speed = 0.000002f * _time;
 
 	//aktualizacja kątów ustawienia kamery
 	xoff *= sensitivity;
@@ -380,7 +380,7 @@ int main()
 			}
 		}
 		//Wywolanie funkcji do kamery
-		setCam(uniView);
+		setCam(uniView, time.asMicroseconds());
 
 		// Nadanie scenie koloru czarnego
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
