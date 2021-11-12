@@ -304,9 +304,13 @@ int main()
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-	window.setMouseCursorGrabbed(true); //przechwycenie kursora myszy w oknie ------------
-	window.setMouseCursorVisible(false); //ukrycie kursora myszy ---------------------
+	// Przechwycenie kursora myszy w oknie
+	window.setMouseCursorGrabbed(true);
+	// Ukrycie kursora myszy
+	window.setMouseCursorVisible(false);
 
+	//FPS limit
+	window.setFramerateLimit(60);
 	sf::Clock clock;
 	sf::Time time;
 
@@ -319,7 +323,7 @@ int main()
 		float cameracameraSpeed = 0.000002f * time.asMicroseconds();
 
 		int ms = time.asMicroseconds();
-		float fps;
+		float fps = 0;
 		if (ms > 0.001) {
 			fps = 1000000 / time.asMicroseconds();
 		}

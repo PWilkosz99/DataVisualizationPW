@@ -364,5 +364,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 *.tlog
+*read.1.tlog
 *.exe
 *.idb
