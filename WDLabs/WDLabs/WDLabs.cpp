@@ -175,9 +175,7 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front.y = sin(glm::radians(pitch));
 	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	std::cout << front.x <<"\t"<<front.y<<"\t"<<front.z<<"\n";
 	cameraFront = glm::normalize(front);
-	std::cout << cameraFront[0] << "\n";;
 
 	glm::mat4 view;
 	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraZoom);
