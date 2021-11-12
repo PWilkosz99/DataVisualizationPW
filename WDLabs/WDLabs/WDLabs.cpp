@@ -7,9 +7,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <SFML/System/Time.hpp>
-#include "stb_image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+
 #define M_PI 3.14159265358979323846
 
 #define WND_H 600
@@ -25,10 +27,13 @@ uniform mat4 view;
 uniform mat4 proj; 
 in vec3 position;
 in vec3 color;
+in vec2 aTexCoord;
 out vec3 Color;
+out vec2 TexCoord;
 void main(){
 Color = color;
 gl_Position = proj * view * model * vec4(position, 1.0);
+TexCoord = aTexCoord;
 }
 )glsl";
 
@@ -36,9 +41,12 @@ const GLchar* fragmentSource = R"glsl(
 #version 150 core
 in vec3 Color;
 out vec4 outColor;
+in vec2 TexCoord;
+uniform sampler2D texture1;
 void main()
 {
 outColor = vec4(Color, 1.0);
+outColor=texture(texture1, TexCoord);
 }
 )glsl";
 
@@ -53,6 +61,8 @@ int lastX, lastY;
 double yaw = -90;
 double pitch = 0;
 float rotation = 0;
+
+unsigned int texture1; //Jak do wszystkich obiektów w OpenGL do tekstury można odwołać się poprzez identyfikator ID // texture 1
 
 
 void ErrorCheck(GLuint& shader, std::string ShaderName = "Unknown shader")
@@ -190,11 +200,35 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 	glUniformMatrix4fv(_uniView, 0, GL_FALSE, glm::value_ptr(view));
 }
 
+void loadTexture() {
+	glGenTextures(1, &texture1); // Generuje tekstury
+	glBindTexture(GL_TEXTURE_2D, texture1); //Ustawienie tekstury jako bieżącej (powiązanie)
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	unsigned char* data = stbi_load("metal.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
 
 int main()
 {
 	srand((unsigned)time(NULL));
-
 
 	sf::ContextSettings settings;
 	settings.depthBits = 24;
@@ -218,50 +252,21 @@ int main()
 	glGenBuffers(1, &vbo);
 
 	GLfloat vertices[] = {
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f,
-		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
+	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,0.0f,
+	0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f,0.0f,
+	0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f,1.0f,
+	0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f,1.0f,
+	-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,1.0f,
+	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,0.0f
 	};
 
+	int points_ = 6;
 
+	// Załadowanie tekstury
+	loadTexture();
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-
 
 	// Utworzenie i skompilowanie shadera wierzchołków
 	GLuint vertexShader =
@@ -296,7 +301,11 @@ int main()
 	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
 	auto primitive = GL_TRIANGLES;
-	//int vertcount = 8;
+
+	// Tekstura
+	GLint TexCoord = glGetAttribLocation(shaderProgram, "aTexCoord");
+	glEnableVertexAttribArray(TexCoord);
+	glVertexAttribPointer(TexCoord, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 *sizeof(GLfloat)));
 
 	// Model
 	glm::mat4 model = glm::mat4(1.0f);
@@ -321,6 +330,9 @@ int main()
 	window.setFramerateLimit(144);
 	sf::Clock clock;
 	sf::Time time;
+
+	// Ustawienie tekstury na bierzaca
+	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
