@@ -46,12 +46,22 @@ in vec3 Color;
 in vec2 TexCoord;
 in vec3 Normal;
 in vec3 FragPos;
+in vec3 lightPos;
 out vec4 outColor;
 uniform sampler2D texture1;
 void main()
 {
 outColor = vec4(Color, 1.0);
 outColor=texture(texture1, TexCoord);
+float ambientStrength = 0.1; // ambient
+vec3 ambientlightColor = vec3(0.1,0.1,0.1);
+vec4 ambient = ambientStrength * vec4(ambientlightColor,1.0);
+vec3 difflightColor = vec3(1.0,1.0,1.0);
+vec3 norm = normalize(Normal);
+vec3 lightDir = normalize(lightPos - FragPos);
+float diff = max(dot(norm, lightDir), 0.0);
+vec3 diffuse = diff * difflightColor;
+outColor = (ambient+vec4(diffuse,1.0)) * texture(texture1, TexCoord);
 }
 )glsl";
 
@@ -401,7 +411,8 @@ int main()
 					primitive = GL_QUAD_STRIP;
 					break;
 				case sf::Keyboard::Num0:
-					primitive = GL_POLYGON;
+					//primitive = GL_POLYGON;
+
 					break;
 				}
 			case sf::Event::MouseMoved:
