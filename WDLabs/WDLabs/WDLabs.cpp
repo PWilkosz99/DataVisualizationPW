@@ -28,8 +28,11 @@ uniform mat4 proj;
 in vec3 position;
 in vec3 color;
 in vec2 aTexCoord;
+in vec3 aNormal;
 out vec3 Color;
 out vec2 TexCoord;
+out vec3 Normal;
+out vec3 FragPos;
 void main(){
 Color = color;
 gl_Position = proj * view * model * vec4(position, 1.0);
@@ -40,8 +43,10 @@ TexCoord = aTexCoord;
 const GLchar* fragmentSource = R"glsl(
 #version 150 core
 in vec3 Color;
-out vec4 outColor;
 in vec2 TexCoord;
+in vec3 Normal;
+in vec3 FragPos;
+out vec4 outColor;
 uniform sampler2D texture1;
 void main()
 {
@@ -173,7 +178,7 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 	lastX = localPos.x;
 	lastY = localPos.y;
 
-	double sensitivity = 0.001f;
+	double sensitivity = 0.05f;
 	double speed = 0.000002f * _time;
 
 	//aktualizacja kątów ustawienia kamery
@@ -302,6 +307,11 @@ int main()
 
 	auto primitive = GL_TRIANGLES;
 
+	// Specyfikacja informacji o wektorach normalnych określając specyfikację formatu danych wierzchołkowych
+	GLint NorAttrib = glGetAttribLocation(shaderProgram, "aNormal");
+	glEnableVertexAttribArray(NorAttrib);
+	glVertexAttribPointer(NorAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+
 	// Tekstura
 	GLint TexCoord = glGetAttribLocation(shaderProgram, "aTexCoord");
 	glEnableVertexAttribArray(TexCoord);
@@ -320,6 +330,12 @@ int main()
 	glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 800.0f, 0.06f, 100.0f);
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+	// Ustalenie polozenia swiatla
+	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	GLint uniLightPos = glGetUniformLocation(shaderProgram, "lightPos");
+	glUniform3fv(uniLightPos, 1, &lightPos[0]);
+
 
 	// Przechwycenie kursora myszy w oknie
 	window.setMouseCursorGrabbed(true);
