@@ -68,6 +68,7 @@ outColor = (ambient+vec4(diffuse,1.0)) * texture(texture1, TexCoord);
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraZoom = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 bool firstMouse = true;
 int lastX, lastY;
@@ -215,10 +216,26 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 	glUniformMatrix4fv(_uniView, 0, GL_FALSE, glm::value_ptr(view));
 }
 
-void setLight(GLint _uniLightPos)
+void setLight(GLint _uniLightPos, float _time)
 {
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-	glUniform3fv(_uniLightPos, 1, &lightPos[0]);
+	//float cameraSpeed = 0.2f * _time; //predkosc kamery
+	//glm::vec3 lPos;
+	//lPos.x = lightPos.x;
+	//lPos.y = lightPos.y;
+	//lPos.z = lightPos.z;
+
+	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y)) {
+	//	lightPos.y += 10;
+	//	lightPos.x += 10;
+	//	lightPos.z += 10;
+	//}
+	//glDisable(_)
+	//lightPos.x = 1.0f + sin(_time) * 2.0f;
+	//lightPos.y = sin(_time / 2.0f) * 1.0f;
+
+	//lightPos = lPos;
+
+	//glUniform3fv(_uniLightPos, 1, &lightPos[0]);
 }
 
 void loadTexture() {
@@ -350,7 +367,6 @@ int main()
 	// Swiatlo
 	GLint uniLightPos = glGetUniformLocation(shaderProgram, "lightPos");
 
-
 	// Przechwycenie kursora myszy w oknie
 	window.setMouseCursorGrabbed(true);
 	// Ukrycie kursora myszy
@@ -426,7 +442,9 @@ int main()
 		}
 		//Wywolanie funkcji do kamery
 		setCam(uniView, time.asMicroseconds());
-		setLight(uniLightPos);
+
+		// Wywolanie funkcji do swiatla
+		setLight(uniLightPos, time.asMicroseconds());
 
 		// Nadanie scenie koloru czarnego
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
