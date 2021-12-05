@@ -53,7 +53,7 @@ void main()
 {
 outColor = vec4(Color, 1.0);
 outColor=texture(texture1, TexCoord);
-float ambientStrength = 0.1; // ambient
+float ambientStrength = 1.0; // ambient
 vec3 ambientlightColor = vec3(0.1,0.1,0.1);
 vec4 ambient = ambientStrength * vec4(ambientlightColor,1.0);
 vec3 difflightColor = vec3(1.0,1.0,1.0);
@@ -215,6 +215,12 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 	glUniformMatrix4fv(_uniView, 0, GL_FALSE, glm::value_ptr(view));
 }
 
+void setLight(GLint _uniLightPos)
+{
+	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	glUniform3fv(_uniLightPos, 1, &lightPos[0]);
+}
+
 void loadTexture() {
 	glGenTextures(1, &texture1); // Generuje tekstury
 	glBindTexture(GL_TEXTURE_2D, texture1); //Ustawienie tekstury jako bieżącej (powiązanie)
@@ -341,10 +347,8 @@ int main()
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-	// Ustalenie polozenia swiatla
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	// Swiatlo
 	GLint uniLightPos = glGetUniformLocation(shaderProgram, "lightPos");
-	glUniform3fv(uniLightPos, 1, &lightPos[0]);
 
 
 	// Przechwycenie kursora myszy w oknie
@@ -422,6 +426,7 @@ int main()
 		}
 		//Wywolanie funkcji do kamery
 		setCam(uniView, time.asMicroseconds());
+		setLight(uniLightPos);
 
 		// Nadanie scenie koloru czarnego
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
