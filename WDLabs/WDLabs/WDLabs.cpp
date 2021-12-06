@@ -22,53 +22,69 @@
 // Kody shaderów
 const GLchar* vertexSource = R"glsl(
 #version 150 core
+
+in vec3 position;
+in vec2 aTexCoord;
+in vec3 aNormal;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj; 
-in vec3 position;
-in vec3 color;
-in vec2 aTexCoord;
-in vec3 aNormal;
-out vec3 Color;
 out vec2 TexCoord;
+out vec3 FragPos;  
 out vec3 Normal;
-out vec3 FragPos;
-void main(){
-Color = color;
-gl_Position = proj * view * model * vec4(position, 1.0);
-TexCoord = aTexCoord;
+
+void main()
+{
+	gl_Position = proj * view * model * vec4(position, 1.0);
+	TexCoord = aTexCoord;
+    Normal = aNormal;
+    FragPos = vec3(model * vec4(position, 1.0));
+
 }
 )glsl";
 
 const GLchar* fragmentSource = R"glsl(
 #version 150 core
-in vec3 Color;
+
 in vec2 TexCoord;
 in vec3 Normal;
 in vec3 FragPos;
-in vec3 lightPos;
-out vec4 outColor;
+uniform vec3 lightPos;
+uniform float power;
+uniform float lightType;
 uniform sampler2D texture1;
+out vec4 outColor;
+
 void main()
 {
-outColor = vec4(Color, 1.0);
-outColor=texture(texture1, TexCoord);
-float ambientStrength = 1.0; // ambient
-vec3 ambientlightColor = vec3(0.1,0.1,0.1);
-vec4 ambient = ambientStrength * vec4(ambientlightColor,1.0);
-vec3 difflightColor = vec3(1.0,1.0,1.0);
-vec3 norm = normalize(Normal);
-vec3 lightDir = normalize(lightPos - FragPos);
-float diff = max(dot(norm, lightDir), 0.0);
-vec3 diffuse = diff * difflightColor;
-outColor = (ambient+vec4(diffuse,1.0)) * texture(texture1, TexCoord);
+	if(lightType == 0.0)
+	{
+		vec3 lightColor = vec3(1.0, 1.0, 1.0);
+		vec3 ambient = power * lightColor;
+		outColor = vec4(ambient, 1.0) * texture(texture1, TexCoord);
+	}
+	else
+	{
+		vec3 lightColor = vec3(1.0, 1.0, 1.0);
+		vec3 norm = normalize(Normal);
+		vec3 lightDir = normalize(lightPos - FragPos); 
+		float diff = max(dot(norm, lightDir), 0.0);
+		vec3 diffuse = diff * lightColor;
+		vec4 ambient = power * vec4(lightColor, 1.0);
+		outColor = (ambient + vec4(diffuse, 1.0)) * texture(texture1, TexCoord);
+	}
 }
 )glsl";
+
+GLuint shaderProgram;
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraZoom = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+static float lightPower = 0.5f;
+static float lightType = 1.0f;
+
 
 bool firstMouse = true;
 int lastX, lastY;
@@ -216,26 +232,20 @@ void setCameraMouse(GLint _uniView, float _time, const sf::Window& _window) {
 	glUniformMatrix4fv(_uniView, 0, GL_FALSE, glm::value_ptr(view));
 }
 
-void setLight(GLint _uniLightPos, float _time)
+void setLight(glm::vec3 pos, float power, float type = 1.0f)
 {
-	//float cameraSpeed = 0.2f * _time; //predkosc kamery
-	//glm::vec3 lPos;
-	//lPos.x = lightPos.x;
-	//lPos.y = lightPos.y;
-	//lPos.z = lightPos.z;
+	GLint unilightPos = glGetUniformLocation(shaderProgram, "lightPos");
+	glUniform3fv(unilightPos, 1, &pos[0]);
 
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y)) {
-	//	lightPos.y += 10;
-	//	lightPos.x += 10;
-	//	lightPos.z += 10;
-	//}
-	//glDisable(_)
-	//lightPos.x = 1.0f + sin(_time) * 2.0f;
-	//lightPos.y = sin(_time / 2.0f) * 1.0f;
+	lightPower = power;
+	lightPos = pos;
+	lightType = type;
 
-	//lightPos = lPos;
+	GLint PowerPos = glGetUniformLocation(shaderProgram, "power");
+	glUniform1f(PowerPos, power);
 
-	//glUniform3fv(_uniLightPos, 1, &lightPos[0]);
+	GLint lightTypePos = glGetUniformLocation(shaderProgram, "lightType");
+	glUniform1f(lightTypePos, type);
 }
 
 void loadTexture() {
@@ -323,7 +333,7 @@ int main()
 	ErrorCheck(fragmentShader, "Fragment Shader");
 
 	// Zlinkowanie obu shaderów w jeden wspólny program
-	GLuint shaderProgram = glCreateProgram();
+	shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glBindFragDataLocation(shaderProgram, 0, "outColor");
@@ -348,7 +358,7 @@ int main()
 	// Tekstura
 	GLint TexCoord = glGetAttribLocation(shaderProgram, "aTexCoord");
 	glEnableVertexAttribArray(TexCoord);
-	glVertexAttribPointer(TexCoord, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 *sizeof(GLfloat)));
+	glVertexAttribPointer(TexCoord, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
 
 	// Model
 	glm::mat4 model = glm::mat4(1.0f);
@@ -365,7 +375,7 @@ int main()
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
 	// Swiatlo
-	GLint uniLightPos = glGetUniformLocation(shaderProgram, "lightPos");
+	GLint unilightPos = glGetUniformLocation(shaderProgram, "lightPos");
 
 	// Przechwycenie kursora myszy w oknie
 	window.setMouseCursorGrabbed(true);
@@ -379,6 +389,8 @@ int main()
 
 	// Ustawienie tekstury na bierzaca
 	glBindTexture(GL_TEXTURE_2D, texture1);
+
+	glm::vec3 NewPosition;
 
 	// Rozpoczęcie pętli zdarzeń
 	bool running = true;
@@ -431,8 +443,49 @@ int main()
 					primitive = GL_QUAD_STRIP;
 					break;
 				case sf::Keyboard::Num0:
-					//primitive = GL_POLYGON;
-
+					primitive = GL_POLYGON;
+					break;
+				case sf::Keyboard::P:
+					setLight(lightPos, lightPower + 0.1, lightType);
+					break;
+				case sf::Keyboard::L:
+					setLight(lightPos, lightPower - 0.1, lightType);
+					break;
+				case sf::Keyboard::O:
+					setLight(lightPos, lightPower, 1.0);
+					break;
+				case sf::Keyboard::K:
+					setLight(lightPos, lightPower, 0.0);
+					break;
+				case sf::Keyboard::T:
+					NewPosition = lightPos;
+					NewPosition.y += 0.5f;
+					setLight(NewPosition, lightPower, lightType);
+					break;
+				case sf::Keyboard::G:
+					NewPosition = lightPos;
+					NewPosition.y -= 0.5f;
+					setLight(NewPosition, lightPower, lightType);
+					break;
+				case sf::Keyboard::H:
+					NewPosition = lightPos;
+					NewPosition.x += 0.5f;
+					setLight(NewPosition, lightPower, lightType);
+					break;
+				case sf::Keyboard::F:
+					NewPosition = lightPos;
+					NewPosition.x -= 0.5f;
+					setLight(NewPosition, lightPower, lightType);
+					break;
+				case sf::Keyboard::U:
+					NewPosition = lightPos;
+					NewPosition.z += 0.5f;
+					setLight(NewPosition, lightPower, lightType);
+					break;
+				case sf::Keyboard::J:
+					NewPosition = lightPos;
+					NewPosition.z -= 0.5f;
+					setLight(NewPosition, lightPower, lightType);
 					break;
 				}
 			case sf::Event::MouseMoved:
@@ -442,9 +495,6 @@ int main()
 		}
 		//Wywolanie funkcji do kamery
 		setCam(uniView, time.asMicroseconds());
-
-		// Wywolanie funkcji do swiatla
-		setLight(uniLightPos, time.asMicroseconds());
 
 		// Nadanie scenie koloru czarnego
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
