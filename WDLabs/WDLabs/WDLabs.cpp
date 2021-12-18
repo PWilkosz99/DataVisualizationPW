@@ -277,7 +277,8 @@ void loadTexture() {
 	stbi_image_free(data);
 }
 
-bool loadOBJ(const char* path, std::vector < glm::vec3 >& out_vertices, std::vector < glm::vec2 >& out_uvs, std::vector < glm::vec3 >& out_normals)
+bool loadOBJ(const char* path, std::vector < glm::vec3 >& out_vertices,
+	std::vector < glm::vec2 >& out_uvs, std::vector < glm::vec3 >& out_normals)
 {
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
@@ -364,19 +365,19 @@ int main()
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 
-	GLfloat vertices[] = {
+	/*GLfloat vertices[] = {
 	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 	0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 	0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
 	0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
 	-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
-	};
+	};*/
 
 	int points_ = 6;
 
 	// Załadowanie tekstury
-	loadTexture();
+	//loadTexture();
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -384,7 +385,7 @@ int main()
 		// Read our .obj file
 	std::vector< glm::vec3 > verticesOBJ;
 	std::vector< glm::vec2 > uvs;
-	std::vector< glm::vec3 > normals; // Won't be used at the moment.
+	std::vector< glm::vec3 > normals;
 	bool res = loadOBJ("ChairAndTable.obj", verticesOBJ, uvs, normals);
 	vertSize = verticesOBJ.size();
 
