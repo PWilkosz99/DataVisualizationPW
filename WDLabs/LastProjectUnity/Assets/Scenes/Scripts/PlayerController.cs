@@ -10,6 +10,10 @@ public class PlayerController : MonoBehaviour
     public float jumpHeight = 7.0f;
     public float actualJumpHeight = 0.0f;
 
+    public float mouseSensitivity = 3.0f;
+    public float mouseUpDown = 0.0f;
+    public float mouseRangeUpDown = 90.0f;
+
     private void keyboardAction()
     {
         float moveFrontBack = Input.GetAxis("Vertical") * moveSpeed;
@@ -30,6 +34,17 @@ public class PlayerController : MonoBehaviour
         characterController.Move(moveVector * Time.deltaTime);
     }
 
+    private void mouseAction()
+    {
+        float mouseLeftRight = Input.GetAxis("Mouse X") * mouseSensitivity;
+        transform.Rotate(0, mouseLeftRight, 0);
+
+        mouseUpDown -= Input.GetAxis("Mouse Y") * mouseSensitivity;
+        mouseUpDown = Mathf.Clamp(mouseUpDown, -mouseRangeUpDown, mouseRangeUpDown);
+
+        Camera.main.transform.localRotation = Quaternion.Euler(mouseUpDown, 0, 0);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -40,5 +55,6 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         keyboardAction();
+        mouseAction();
     }
 }
